@@ -104,17 +104,17 @@ func Get(s string, v interface{}) bool {
 }
 
 func (l Legs) Line() string {
-	switch l.Code {
+	switch l.Type {
 	case "1", "2", "3", "4":
-		return l.Type[2:][:4]
+		return l.Code[2:][:4]
 	case "5", "8":
-		return l.Type[1:][:4]
+		return l.Code[1:][:4]
 	case "6":
 		return "metro"
 	case "12":
-		return l.Type[4:5]
+		return l.Code[4:5]
 	case "walk":
-		return l.Code
+		return l.Type
 	}
-	return l.Type
+	return l.Code
 }
