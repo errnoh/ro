@@ -12,6 +12,8 @@ import (
 	"github.com/errnoh/ro"
 )
 
+var route *string = flag.String("route", "", "Reitti (~/.ro tiedostosta)")
+var reverse *bool = flag.Bool("reverse", false, "Paluureitti")
 var from *string = flag.String("from", "", "Mistä? (\"Kauppakuja 1, helsinki\" for example")
 var to *string = flag.String("to", "", "Mihin?")
 var time *string = flag.String("time", "", "Aika (HHMM)")
@@ -23,6 +25,18 @@ func main() {
 	flag.Parse()
 
 	ro.SetCredentials("ro-term", "roTermPublic")
+
+        if *route != "" {
+            var ok bool
+            if *from, *to, ok = ro.GetNamedRoute(*route); !ok {
+                fmt.Printf("Reittiä '%s' ei löytynyt\n", *route)
+                return
+            }
+        }
+
+        if *reverse {
+            *from, *to = *to, *from
+        }
 
 	start, ok := ro.GetLocation(*from)
 	if !ok {

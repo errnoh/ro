@@ -7,21 +7,35 @@ package ro
 
 import (
 	"bytes"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 )
+
 
 var (
 	api_user, api_pass string
+
+        // You can save routes in a file named .ro inside your home folder.
+        // Each row should be formatted as: name,source,destination
+        // Escape strings with quotes if needed (if there are any commas).
+        // Example row:
+        // keskustaan,"ratapihantie 1, helsinki",rautatientori
+        routefile = fmt.Sprintf("%s/.ro", os.Getenv("HOME"))
 )
 
 func SetCredentials(user, pass string) {
 	api_user = user
 	api_pass = pass
+}
+
+func SetRoutefile(file string) {
+        routefile = file
 }
 
 func GetLocation(loc string) (LocationResponse, bool) {
@@ -117,4 +131,27 @@ func (l Legs) Line() string {
 		return l.Type
 	}
 	return l.Code
+}
+
+func GetNamedRoute(route string) (from, to string, ok bool) {
+	file, err := os.Open(routefile)
+	if err != nil {
+                fmt.Println(err)
+		return
+	}
+	defer file.Close()
+
+	r := csv.NewReader(file)
+	for row, err := r.Read(); err == nil; row, err = r.Read() {
+		if len(row) != 3 {
+			continue
+		}
+		if row[0] == route {
+			from = row[1]
+			to = row[2]
+			ok = true
+			break
+		}
+	}
+	return
 }
